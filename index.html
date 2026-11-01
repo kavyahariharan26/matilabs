@@ -543,7 +543,7 @@ if('IntersectionObserver' in window&&!mq.matches){new IntersectionObserver(funct
     var finished=false;
     function showDone(){if(finished)return;finished=true;f.classList.add('sent');sub.disabled=false;st.textContent='';document.getElementById('done').focus()}
     /* FormSubmit can take a while to reply even after the email is on its way, so don't leave people stuck on "Sending…". */
-    var slow=setTimeout(showDone,6000);
+    var slow=setTimeout(showDone,1000);
     fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){return r.json().then(function(j){if(!r.ok||String(j.success)==='false')throw new Error();})})
       .then(function(){clearTimeout(slow);showDone()})
