@@ -540,11 +540,14 @@ if('IntersectionObserver' in window&&!mq.matches){new IntersectionObserver(funct
     sub.disabled=true;st.textContent='Sending…';
     var d=f.elements;
     var payload={name:d.name.value.trim(),email:d.email.value.trim(),company:d.company.value.trim(),role:d.role.value,details:d.details.value.trim(),_subject:'Mati enquiry: '+d.company.value.trim(),_template:'table',_captcha:'false'};
+    var finished=false;
+    function showDone(){if(finished)return;finished=true;f.classList.add('sent');sub.disabled=false;st.textContent='';document.getElementById('done').focus()}
+    /* FormSubmit can take a while to reply even after the email is on its way, so don't leave people stuck on "Sending…". */
+    var slow=setTimeout(showDone,6000);
     fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){return r.json().then(function(j){if(!r.ok||String(j.success)==='false')throw new Error();})})
-      .then(function(){f.classList.add('sent');document.getElementById('done').focus()})
-      .catch(function(){mailtoFallback()})
-      .then(function(){sub.disabled=false;if(st.textContent==='Sending…')st.textContent=''});
+      .then(function(){clearTimeout(slow);showDone()})
+      .catch(function(){clearTimeout(slow);if(finished)return;finished=true;sub.disabled=false;mailtoFallback()});
   });
 })();
 </script>
